@@ -1,0 +1,61 @@
+syntax = "proto3";
+package order;
+option go_package = "github.com/Abuka13/payment_order_grpc/protos/order/pb;pb";
+import "google/protobuf/timestamp.proto";
+
+service OrderService {
+    rpc CreateOrder (CreateOrderRequest) returns (CreateOrderResponse);
+    rpc GetOrder (GetOrderRequest) returns (GetOrderResponse);
+    rpc CancelOrder (CancelOrderRequest) returns (CancelOrderResponse);
+    rpc SubscribeToOrderUpdates (OrderRequest) returns (stream OrderStatusUpdate);
+}
+
+message CreateOrderRequest {
+    string customer_id = 1;
+    string item_name = 2;
+    int64 amount = 3;
+}
+
+message CreateOrderResponse {
+    string order_id = 1;
+    string customer_id = 2;
+    string item_name = 3;
+    int64 amount = 4;
+    string status = 5;
+    google.protobuf.Timestamp created_at = 6;
+}
+
+message GetOrderRequest {
+    string order_id = 1;
+}
+
+message GetOrderResponse {
+    string order_id = 1;
+    string customer_id = 2;
+    string item_name = 3;
+    int64 amount = 4;
+    string status = 5;
+    google.protobuf.Timestamp created_at = 6;
+}
+
+message CancelOrderRequest {
+    string order_id = 1;
+}
+
+message CancelOrderResponse {
+    string order_id = 1;
+    string status = 2;
+    bool success = 3;
+    string message = 4;
+}
+
+message OrderRequest {
+    string order_id = 1;
+}
+
+message OrderStatusUpdate {
+    string order_id = 1;
+    string status = 2;
+    google.protobuf.Timestamp updated_at = 3;
+    string message = 4;
+}
