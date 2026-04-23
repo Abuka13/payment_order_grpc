@@ -1,0 +1,58 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Takanashi_13
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  payment-service:
+    build:
+      context: ./payment-service
+      dockerfile: dockerfile
+    container_name: payment-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: host=postgres port=5432 user=postgres password=Takanashi_13 dbname=paymentdb sslmode=disable
+      PAYMENT_SERVICE_PORT: "8081"
+      PAYMENT_GRPC_PORT: "9091"
+    ports:
+      - "8081:8081"
+      - "9091:9091"
+    restart: on-failure
+
+  order-service:
+    build:
+      context: ./order-service
+      dockerfile: dockerfile
+    container_name: order-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+      payment-service:
+        condition: service_started
+    environment:
+      DATABASE_URL: host=postgres port=5432 user=postgres password=Takanashi_13 dbname=orderdb sslmode=disable
+      PAYMENT_GRPC_ADDRESS: payment-service:9091
+      ORDER_SERVICE_PORT: "8080"
+      ORDER_GRPC_PORT: "9090"
+    ports:
+      - "8080:8080"
+      - "9090:9090"
+    restart: on-failure
+
+volumes:
+  postgres_data:
