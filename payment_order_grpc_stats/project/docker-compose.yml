@@ -48,10 +48,10 @@ services:
       DATABASE_URL: host=postgres port=5432 user=postgres password=Takanashi_13 dbname=orderdb sslmode=disable
       PAYMENT_GRPC_ADDRESS: payment-service:9091
       ORDER_SERVICE_PORT: "8080"
-      ORDER_GRPC_PORT: "9090"
+      ORDER_GRPC_PORT: "9092"
     ports:
       - "8080:8080"
-      - "9090:9090"
+      - "9092:9092"
     restart: on-failure
 
 volumes:

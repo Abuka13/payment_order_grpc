@@ -1,0 +1,16 @@
+Invoke-RestMethod -Method POST -Uri "http://localhost:8080/orders" -ContentType "application/json" -Body '{"customer_id":"user-1","item_name":"Laptop","amount":1500}'
+Invoke-RestMethod -Uri "http://localhost:8080/orders/<order_id>"
+Invoke-RestMethod -Method PATCH -Uri "http://localhost:8080/orders/<order_id>/cancel"
+Invoke-RestMethod -Uri "http://localhost:8081/payments/<order_id>"
+docker exec -it postgres psql -U postgres -d orderdb -c "UPDATE orders SET status='shipped' WHERE id='<order_id>';"
+# Сначала создай заказ и получи id
+$order = Invoke-RestMethod -Method POST -Uri "http://localhost:8080/orders" -ContentType "application/json" -Body '{"customer_id":"user-1","item_name":"Laptop","amount":1500}'
+$order.id
+# Подпишись на стриминг (в отдельном терминале)
+docker exec -it order-service ./grpc-client --addr localhost:9092 --order $order.id
+# В основном терминале — меняй статус и смотри как стрим получает обновления
+docker exec -it postgres psql -U postgres -d orderdb -c "UPDATE orders SET status='processing' WHERE id='$($order.id)';"
+
+docker exec -it postgres psql -U postgres -d orderdb -c "UPDATE orders SET status='shipped' WHERE id='$($order.id)';"
+
+docker exec -it postgres psql -U postgres -d orderdb -c "UPDATE orders SET status='delivered' WHERE id='$($order.id)';"

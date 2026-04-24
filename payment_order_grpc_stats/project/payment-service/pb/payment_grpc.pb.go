@@ -29,6 +29,7 @@ const (
 type PaymentServiceClient interface {
 	ProcessPayment(ctx context.Context, in *PaymentRequest, opts ...grpc.CallOption) (*PaymentResponse, error)
 	GetPaymentByOrderID(ctx context.Context, in *GetPaymentRequest, opts ...grpc.CallOption) (*PaymentResponse, error)
+	GetPaymentStats(ctx context.Context, in *GetPaymentStatsRequest, opts ...grpc.CallOption) (*PaymentStats, error)
 }
 
 type paymentServiceClient struct {
@@ -59,12 +60,25 @@ func (c *paymentServiceClient) GetPaymentByOrderID(ctx context.Context, in *GetP
 	return out, nil
 }
 
+const PaymentService_GetPaymentStats_FullMethodName = "/payment.PaymentService/GetPaymentStats"
+
+func (c *paymentServiceClient) GetPaymentStats(ctx context.Context, in *GetPaymentStatsRequest, opts ...grpc.CallOption) (*PaymentStats, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PaymentStats)
+	err := c.cc.Invoke(ctx, PaymentService_GetPaymentStats_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PaymentServiceServer is the server API for PaymentService service.
 // All implementations must embed UnimplementedPaymentServiceServer
 // for forward compatibility.
 type PaymentServiceServer interface {
 	ProcessPayment(context.Context, *PaymentRequest) (*PaymentResponse, error)
 	GetPaymentByOrderID(context.Context, *GetPaymentRequest) (*PaymentResponse, error)
+	GetPaymentStats(context.Context, *GetPaymentStatsRequest) (*PaymentStats, error)
 	mustEmbedUnimplementedPaymentServiceServer()
 }
 
@@ -80,6 +94,9 @@ func (UnimplementedPaymentServiceServer) ProcessPayment(context.Context, *Paymen
 }
 func (UnimplementedPaymentServiceServer) GetPaymentByOrderID(context.Context, *GetPaymentRequest) (*PaymentResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetPaymentByOrderID not implemented")
+}
+func (UnimplementedPaymentServiceServer) GetPaymentStats(context.Context, *GetPaymentStatsRequest) (*PaymentStats, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetPaymentStats not implemented")
 }
 func (UnimplementedPaymentServiceServer) mustEmbedUnimplementedPaymentServiceServer() {}
 func (UnimplementedPaymentServiceServer) testEmbeddedByValue()                        {}
@@ -138,6 +155,24 @@ func _PaymentService_GetPaymentByOrderID_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PaymentService_GetPaymentStats_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPaymentStatsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PaymentServiceServer).GetPaymentStats(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PaymentService_GetPaymentStats_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PaymentServiceServer).GetPaymentStats(ctx, req.(*GetPaymentStatsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // PaymentService_ServiceDesc is the grpc.ServiceDesc for PaymentService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -153,7 +188,13 @@ var PaymentService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "GetPaymentByOrderID",
 			Handler:    _PaymentService_GetPaymentByOrderID_Handler,
 		},
+		{
+			MethodName: "GetPaymentStats",
+			Handler:    _PaymentService_GetPaymentStats_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "proto/payment.proto",
 }
+
+

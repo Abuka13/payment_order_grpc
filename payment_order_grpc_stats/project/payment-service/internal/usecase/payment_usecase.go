@@ -39,3 +39,7 @@ func (u *PaymentUsecase) Create(orderID string, amount int64) (*domain.Payment, 
 func (u *PaymentUsecase) GetByOrderID(orderID string) (*domain.Payment, error) {
 	return u.repo.GetByOrderID(orderID)
 }
+
+func (u *PaymentUsecase) GetStats() (*domain.PaymentStats, error) {
+	return u.repo.GetStats()
+}

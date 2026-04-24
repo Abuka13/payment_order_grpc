@@ -9,6 +9,7 @@ import "google/protobuf/timestamp.proto";
 service PaymentService {
   rpc ProcessPayment(PaymentRequest) returns (PaymentResponse);
   rpc GetPaymentByOrderID(GetPaymentRequest) returns (PaymentResponse);
+  rpc GetPaymentStats(GetPaymentStatsRequest) returns (PaymentStats); // новый
 }
 
 message PaymentRequest {
@@ -20,6 +21,15 @@ message GetPaymentRequest {
   string order_id = 1;
 }
 
+message GetPaymentStatsRequest {}
+
+message PaymentStats {
+  int64 total_count      = 1;
+  int64 authorized_count = 2;
+  int64 declined_count   = 3;
+  int64 total_amount     = 4; // сумма всех amount в cents
+}
+
 message PaymentResponse {
   string id = 1;
   string order_id = 2;
@@ -28,4 +38,3 @@ message PaymentResponse {
   string status = 5;
   google.protobuf.Timestamp created_at = 6;
 }
-

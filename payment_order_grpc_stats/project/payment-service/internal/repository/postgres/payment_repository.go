@@ -48,3 +48,25 @@ func (r *PaymentPostgresRepository) GetByOrderID(orderID string) (*domain.Paymen
 
 	return &payment, nil
 }
+
+func (r *PaymentPostgresRepository) GetStats() (*domain.PaymentStats, error) {
+	query := `
+		SELECT
+			COUNT(*)                                          AS total_count,
+			COUNT(*) FILTER (WHERE status = 'Authorized')   AS authorized_count,
+			COUNT(*) FILTER (WHERE status = 'Declined')     AS declined_count,
+			COALESCE(SUM(amount), 0)                        AS total_amount
+		FROM payments
+	`
+	var stats domain.PaymentStats
+	err := r.db.QueryRow(query).Scan(
+		&stats.TotalCount,
+		&stats.AuthorizedCount,
+		&stats.DeclinedCount,
+		&stats.TotalAmount,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &stats, nil
+}

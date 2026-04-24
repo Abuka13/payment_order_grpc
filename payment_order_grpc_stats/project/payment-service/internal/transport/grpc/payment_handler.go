@@ -60,3 +60,17 @@ func (h *PaymentGRPCHandler) GetPaymentByOrderID(ctx context.Context, req *pb.Ge
 		CreatedAt:     timestamppb.Now(),
 	}, nil
 }
+
+func (h *PaymentGRPCHandler) GetPaymentStats(ctx context.Context, req *pb.GetPaymentStatsRequest) (*pb.PaymentStats, error) {
+	stats, err := h.uc.GetStats()
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to get payment stats: %v", err)
+	}
+
+	return &pb.PaymentStats{
+		TotalCount:      stats.TotalCount,
+		AuthorizedCount: stats.AuthorizedCount,
+		DeclinedCount:   stats.DeclinedCount,
+		TotalAmount:     stats.TotalAmount,
+	}, nil
+}
