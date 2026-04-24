@@ -1,0 +1,21 @@
+FROM golang:1.23-alpine AS builder
+
+RUN apk add --no-cache git
+
+WORKDIR /app
+
+COPY . .
+
+RUN go mod tidy && \
+    CGO_ENABLED=0 GOOS=linux go build -o order-service ./cmd/main.go
+
+FROM alpine:3.19
+
+WORKDIR /app
+
+COPY --from=builder /app/order-service .
+COPY --from=builder /app/migrations ./migrations
+
+EXPOSE 8080 9090
+
+CMD ["./order-service"]
