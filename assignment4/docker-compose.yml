@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: Takanashi_13
       POSTGRES_DB: postgres
     ports:
-      - "5433:5433"
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
@@ -17,12 +17,25 @@ services:
       timeout: 5s
       retries: 10
 
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
   rabbitmq:
     image: rabbitmq:3.13-management-alpine
     container_name: rabbitmq
     ports:
       - "5672:5672"
-      - "15672:15672"   # Management UI: http://localhost:15672 (guest/guest)
+      - "15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
@@ -60,6 +73,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
       payment-service:
         condition: service_started
     environment:
@@ -67,6 +82,8 @@ services:
       PAYMENT_GRPC_ADDRESS: payment-service:9091
       ORDER_SERVICE_PORT: "8080"
       ORDER_GRPC_PORT: "9092"
+      REDIS_ADDR: redis:6379
+      RATE_LIMIT: "10"
     ports:
       - "8080:8080"
       - "9092:9092"
@@ -78,14 +95,23 @@ services:
       dockerfile: dockerfile
     container_name: notification-service
     depends_on:
-      postgres:
+      redis:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
     environment:
-      DATABASE_URL: host=postgres port=5432 user=postgres password=Takanashi_13 dbname=notificationdb sslmode=disable
       RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+      REDIS_ADDR: redis:6379
+      PROVIDER_MODE: SIMULATED        # Switch to REAL for SMTP
+      SIMULATED_FAILURE_RATE: "0.2"   # 20% failure rate to test retries
+      # For REAL mode:
+      # SMTP_HOST: smtp.mailjet.com
+      # SMTP_PORT: "587"
+      # SMTP_USER: your_api_key
+      # SMTP_PASS: your_secret_key
+      # SMTP_FROM: no-reply@yourdomain.com
     restart: on-failure
 
 volumes:
   postgres_data:
+  redis_data:

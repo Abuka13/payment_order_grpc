@@ -7,10 +7,14 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
+	"time"
 
+	"order-service/internal/cache"
 	"order-service/internal/client"
 	"order-service/internal/config"
+	"order-service/internal/middleware"
 	postgresrepo "order-service/internal/repository/postgres"
 	grpctransport "order-service/internal/transport/grpc"
 	httptransport "order-service/internal/transport/http"
@@ -19,6 +23,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
+	"github.com/redis/go-redis/v9"
 	"google.golang.org/grpc"
 )
 
@@ -63,7 +68,16 @@ func main() {
 	paymentGRPCAddr := config.GetEnv("PAYMENT_GRPC_ADDRESS", "localhost:9091")
 	orderGRPCPort := config.GetEnv("ORDER_GRPC_PORT", "9090")
 	orderHTTPPort := config.GetEnv("ORDER_SERVICE_PORT", "8080")
+	redisAddr := config.GetEnv("REDIS_ADDR", "localhost:6379")
 
+	// Rate limiter config (defaults: 10 req / 1 min)
+	rateLimitStr := config.GetEnv("RATE_LIMIT", "10")
+	rateLimit, _ := strconv.Atoi(rateLimitStr)
+	if rateLimit <= 0 {
+		rateLimit = 10
+	}
+
+	// --- Database ---
 	db, err := sql.Open("postgres", dbURL)
 	if err != nil {
 		log.Fatal(err)
@@ -73,16 +87,25 @@ func main() {
 	}
 	log.Println("Order Service connected to database")
 
+	// --- Redis ---
+	rdb := redis.NewClient(&redis.Options{
+		Addr: redisAddr,
+	})
+	orderCache := cache.NewOrderCache(rdb)
+	log.Printf("Order Service connected to Redis at %s", redisAddr)
+
+	// --- Payment gRPC client ---
 	paymentClient, err := client.NewPaymentGRPCClient(paymentGRPCAddr)
 	if err != nil {
 		log.Fatalf("Failed to connect to payment service: %v", err)
 	}
 	defer paymentClient.Close()
 
+	// --- Use case & repository ---
 	orderRepo := postgresrepo.NewOrderPostgresRepository(db)
-	orderUC := usecase.NewOrderUsecase(orderRepo, paymentClient)
+	orderUC := usecase.NewOrderUsecase(orderRepo, paymentClient, orderCache)
 
-	// Graceful shutdown
+	// --- Graceful shutdown ---
 	stopCh := make(chan os.Signal, 1)
 	signal.Notify(stopCh, os.Interrupt, syscall.SIGTERM)
 
@@ -105,6 +128,10 @@ func main() {
 	go func() {
 		orderHandler := httptransport.NewOrderHandler(orderUC)
 		r := gin.Default()
+
+		// Bonus: rate-limiter middleware (10 req/min per IP, backed by Redis)
+		r.Use(middleware.RateLimiter(rdb, rateLimit, time.Minute))
+
 		r.POST("/orders", orderHandler.CreateOrder)
 		r.GET("/orders/:id", orderHandler.GetOrder)
 		r.PATCH("/orders/:id/cancel", orderHandler.CancelOrder)
@@ -120,5 +147,6 @@ func main() {
 		grpcServer.GracefulStop()
 	}
 	db.Close()
+	rdb.Close()
 	log.Println("Order Service stopped")
 }
