@@ -1,0 +1,91 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Takanashi_13
+      POSTGRES_DB: postgres
+    ports:
+      - "5433:5433"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"   # Management UI: http://localhost:15672 (guest/guest)
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  payment-service:
+    build:
+      context: ./payment-service
+      dockerfile: dockerfile
+    container_name: payment-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: host=postgres port=5432 user=postgres password=Takanashi_13 dbname=paymentdb sslmode=disable
+      PAYMENT_SERVICE_PORT: "8081"
+      PAYMENT_GRPC_PORT: "9091"
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+    ports:
+      - "8081:8081"
+      - "9091:9091"
+    restart: on-failure
+
+  order-service:
+    build:
+      context: ./order-service
+      dockerfile: dockerfile
+    container_name: order-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+      payment-service:
+        condition: service_started
+    environment:
+      DATABASE_URL: host=postgres port=5432 user=postgres password=Takanashi_13 dbname=orderdb sslmode=disable
+      PAYMENT_GRPC_ADDRESS: payment-service:9091
+      ORDER_SERVICE_PORT: "8080"
+      ORDER_GRPC_PORT: "9092"
+    ports:
+      - "8080:8080"
+      - "9092:9092"
+    restart: on-failure
+
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: dockerfile
+    container_name: notification-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: host=postgres port=5432 user=postgres password=Takanashi_13 dbname=notificationdb sslmode=disable
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+    restart: on-failure
+
+volumes:
+  postgres_data:

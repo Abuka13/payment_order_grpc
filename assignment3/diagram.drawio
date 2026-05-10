@@ -1,0 +1,118 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Страница-1" id="dJTChOXlxhojCeb62eiJ">
+    <mxGraphModel grid="0" page="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="jVI_QDCgdQ-F_UP_aHq7-3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Client" vertex="1">
+          <mxGeometry height="60" width="120" x="350" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="jVI_QDCgdQ-F_UP_aHq7-4" edge="1" parent="1" style="endArrow=none;html=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="410" y="140" as="sourcePoint" />
+            <mxPoint x="410" y="80" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jVI_QDCgdQ-F_UP_aHq7-5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" value="Order Service :8080&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;HTTP handler(GIN)&lt;/div&gt;&lt;div&gt;Usecase -&amp;gt; Repository&lt;/div&gt;&lt;div&gt;Domain model&lt;/div&gt;" vertex="1">
+          <mxGeometry height="140" width="150" x="340" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="jVI_QDCgdQ-F_UP_aHq7-6" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="HTTP POST /orders" vertex="1">
+          <mxGeometry height="30" width="120" x="355" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="jVI_QDCgdQ-F_UP_aHq7-7" edge="1" parent="1" style="endArrow=none;html=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="270" y="200" as="sourcePoint" />
+            <mxPoint x="340" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jVI_QDCgdQ-F_UP_aHq7-8" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="orderdb" vertex="1">
+          <mxGeometry height="60" width="120" x="150" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="jVI_QDCgdQ-F_UP_aHq7-9" edge="1" parent="1" style="endArrow=none;html=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="410" y="340" as="sourcePoint" />
+            <mxPoint x="410" y="280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jVI_QDCgdQ-F_UP_aHq7-10" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" value="Protobuf contracts&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;PaymentRequest + customer_email&lt;/div&gt;" vertex="1">
+          <mxGeometry height="80" width="320" x="260" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="jVI_QDCgdQ-F_UP_aHq7-11" edge="1" parent="1" style="endArrow=none;html=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="410" y="470" as="sourcePoint" />
+            <mxPoint x="410" y="420" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jVI_QDCgdQ-F_UP_aHq7-12" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="Payment Service :8081/:9091&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;gRPC handler&lt;/div&gt;&lt;div&gt;Usecase (EventPublisher interface)&lt;/div&gt;&lt;div&gt;Repository -&amp;gt; Domain&amp;nbsp;&lt;/div&gt;&lt;div&gt;Gracefuul shutdown&lt;/div&gt;" vertex="1">
+          <mxGeometry height="130" width="320" x="260" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="jVI_QDCgdQ-F_UP_aHq7-13" edge="1" parent="1" style="endArrow=none;html=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="410" y="670" as="sourcePoint" />
+            <mxPoint x="410" y="600" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jVI_QDCgdQ-F_UP_aHq7-14" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" value="RabbitMQ :5672&lt;div&gt;Queue: payment.completed (durable)&lt;/div&gt;&lt;div&gt;Publisher confirms&amp;nbsp;&lt;/div&gt;&lt;div&gt;DLX -&amp;gt; payment.completed.dead (DLQ)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="150" width="320" x="260" y="670" as="geometry" />
+        </mxCell>
+        <mxCell id="jVI_QDCgdQ-F_UP_aHq7-15" edge="1" parent="1" style="endArrow=none;html=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="420" y="900" as="sourcePoint" />
+            <mxPoint x="420" y="820" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jVI_QDCgdQ-F_UP_aHq7-16" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" value="Notification&amp;nbsp; Service&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;RabbitMQ consumer autoAck = false&lt;/div&gt;&lt;div&gt;Manual ACK after processing&lt;/div&gt;&lt;div&gt;Idempotency: processed_events table&lt;/div&gt;&lt;div&gt;Graceful shutdown (os/signal)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="130" width="330" x="260" y="900" as="geometry" />
+        </mxCell>
+        <mxCell id="jVI_QDCgdQ-F_UP_aHq7-17" edge="1" parent="1" style="endArrow=none;html=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="420" y="1080" as="sourcePoint" />
+            <mxPoint x="420" y="1030" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jVI_QDCgdQ-F_UP_aHq7-18" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="ConsoleLog&lt;div&gt;[Notification] Sent email to user@... Order #uiid&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="330" x="260" y="1080" as="geometry" />
+        </mxCell>
+        <mxCell id="jVI_QDCgdQ-F_UP_aHq7-19" edge="1" parent="1" style="endArrow=none;html=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="590" y="930" as="sourcePoint" />
+            <mxPoint x="650" y="930" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jVI_QDCgdQ-F_UP_aHq7-20" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="notification&lt;div&gt;db&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="120" x="650" y="900" as="geometry" />
+        </mxCell>
+        <mxCell id="jVI_QDCgdQ-F_UP_aHq7-21" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="SQL" vertex="1">
+          <mxGeometry height="30" width="60" x="590" y="900" as="geometry" />
+        </mxCell>
+        <mxCell id="jVI_QDCgdQ-F_UP_aHq7-22" edge="1" parent="1" style="endArrow=none;html=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="580" y="740" as="sourcePoint" />
+            <mxPoint x="640" y="740" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jVI_QDCgdQ-F_UP_aHq7-23" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" value="DLQ&lt;div&gt;dead messages&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="120" x="640" y="710" as="geometry" />
+        </mxCell>
+        <mxCell id="jVI_QDCgdQ-F_UP_aHq7-24" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="reject" vertex="1">
+          <mxGeometry height="30" width="60" x="580" y="720" as="geometry" />
+        </mxCell>
+        <mxCell id="jVI_QDCgdQ-F_UP_aHq7-25" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="gRPC client" vertex="1">
+          <mxGeometry height="30" width="90" x="460" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="jVI_QDCgdQ-F_UP_aHq7-26" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="gRPC Process Payment" vertex="1">
+          <mxGeometry height="30" width="140" x="440" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="jVI_QDCgdQ-F_UP_aHq7-27" edge="1" parent="1" style="endArrow=none;html=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="580" y="540" as="sourcePoint" />
+            <mxPoint x="640" y="540" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jVI_QDCgdQ-F_UP_aHq7-28" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="paymentdb" vertex="1">
+          <mxGeometry height="60" width="120" x="640" y="505" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
