@@ -11,10 +11,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-// RateLimiter returns a Gin middleware that limits requests per client IP
-// using Redis as the shared counter store.
-// limit  — max requests allowed in the window
-// window — duration of the sliding window (e.g. 1 minute)
+
 func RateLimiter(rdb *redis.Client, limit int, window time.Duration) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
